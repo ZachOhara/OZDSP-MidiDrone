@@ -35,9 +35,9 @@ OZDSP_MidiDrone::OZDSP_MidiDrone(IPlugInstanceInfo instanceInfo) :
 	RegisterBitmap(WAVESELECT_ID, WAVESELECT_FN, WAVESELECT_FRAMES);
 	AddParameters(kParameterList);
 	RegisterProcessor(&mOscillator);
-	RegisterProcessorParameter(&mOscillator, kWaveformPid, kOscillatorModeParam);
+	RegisterProcessorParameter(&mOscillator, kWaveformPid, Oscillator::kWaveformParam);
 	RegisterProcessor(&mVolumeProcessor);
-	RegisterProcessorParameter(&mVolumeProcessor, kVolumePid, kVolumeProcessorDecibelsParam);
+	RegisterProcessorParameter(&mVolumeProcessor, kVolumePid, VolumeProcessor::kDecibelsParam);
 	RegisterProcessor(&mTuningProcessor);
 	FinishConstruction();
 }
@@ -62,7 +62,7 @@ void OZDSP_MidiDrone::ProcessDoubleReplacing(double** inputs, double** outputs, 
 
 		while (!mMidiEventQueue.empty())
 		{
-			NoteStatusEvent midiEvent = mMidiEventQueue.front();
+			MidiEvent midiEvent = mMidiEventQueue.front();
 			mMidiEventQueue.pop();
 			HandleMidiEvent(midiEvent);
 		}
@@ -79,17 +79,17 @@ void OZDSP_MidiDrone::ProcessDoubleReplacing(double** inputs, double** outputs, 
 	mMidiReciver.FlushBlock(nFrames);
 }
 
-void OZDSP_MidiDrone::HandleMidiEvent(NoteStatusEvent midiEvent)
+void OZDSP_MidiDrone::HandleMidiEvent(MidiEvent midiEvent)
 {
 	switch (midiEvent.eventType)
 	{
-	case kNoteTriggerEventType:
+	case MidiEvent::kNoteBegin:
 		mOscillator.SetFrequency(mTuningProcessor.GetFrequencyOfNote(midiEvent.noteId));
 		break;
-	case kNoteChangeEventType:
+	case MidiEvent::kNoteChange:
 		mOscillator.SetFrequency(mTuningProcessor.GetFrequencyOfNote(midiEvent.newNoteId));
 		break;
-	case kNoteReleaseEventType:
+	case MidiEvent::kNoteEnd:
 		mOscillator.SetFrequency(0.0);
 		break;
 	}

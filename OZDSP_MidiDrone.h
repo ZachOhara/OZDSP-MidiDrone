@@ -26,9 +26,9 @@ private:
 	MidiStackReciever mMidiReciver;
 	TuningProcessor mTuningProcessor;
 
-	std::queue<NoteStatusEvent> mMidiEventQueue;
+	std::queue<MidiEvent> mMidiEventQueue;
 
-	void HandleMidiEvent(NoteStatusEvent midiEvent);
+	void HandleMidiEvent(MidiEvent midiEvent);
 };
 
 #endif
